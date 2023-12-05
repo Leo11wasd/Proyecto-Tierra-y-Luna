@@ -49,7 +49,7 @@ const char *vertexShaderSource =
     "out vec3 color;\n"
     "void main()\n"
     "{\n"
-    "   gl_Position = MVP * vec4(aPos.x,aPos.y,aPos.z, 1.0);\n"
+    "   gl_Position = MVP * vec4(vPos.x,vPos.y,vPos.z, 1.0);\n"
     "   color = aCol;\n"
     "}\0";
 
@@ -122,6 +122,8 @@ int main() {
     return -1;
   }
   glfwMakeContextCurrent(window);
+glfwSwapInterval(1);
+
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
   // glad: load all OpenGL function pointers
@@ -137,7 +139,7 @@ int main() {
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
     // ===============================================================
-  //              FIN CONFIGURACIÓN BASICA
+  //              FIN CONFIGURACIÃ“N BASICA
   // ===============================================================
 
 	GLuint vertex_buffer, vertex_shader, fragment_shader, program;
@@ -152,11 +154,11 @@ int i=0;
     i++;
     // metelo a un arreglo pa luego darselo al gpu
   }
-
+/*
   for(int i=0;i<710;i++){
     cout<<verticesL[i].x<<" "<<verticesL[i].y<<" "<<verticesL[i].z<<endl;
   }
-
+*/
 
   glGenBuffers(1, &vertex_buffer);
   glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
@@ -206,13 +208,15 @@ int i=0;
 
     glUseProgram(program);
     glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*)mvp);
-
-    glDrawArrays(GL_LINES,0,710);
+    glDrawArrays(GL_POINTS,0,709);
 
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
 
-  glfwTerminate();
+	glfwDestroyWindow(window);
+
+	glfwTerminate();
+	exit(EXIT_SUCCESS);
   return 0;
 }
