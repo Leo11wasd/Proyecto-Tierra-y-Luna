@@ -3,10 +3,12 @@
 
 #include "Movils.cpp"
 #include "VEC3.h"
+#include <stb_image.h>
 
 #include <iostream>
 #include <cmath>
 #include "linmath.h"
+#include <learnopengl/filesystem.h>
 
 #include "Resorte_04_Normales_TEX_ejes.cpp"
 VEC3 pos_1 = {0.0, 0.0, 0.0};
@@ -47,24 +49,30 @@ void processInput(GLFWwindow *window);
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
+
 const char *vertexShaderSource ="#version 330 core\n"
     "uniform mat4 MVP;\n"
     "layout (location = 0) in vec3 aPos;\n"
     "layout (location = 1) in vec3 aCol;\n"
+    "layout (location = 2) in vec2 aTexCoord;\n"
     "out vec3 color;\n"
+    "out vec2 TexCoord;\n"
     "void main()\n"
     "{\n"
     "   gl_Position = MVP * vec4(aPos.x,aPos.y,aPos.z, 1.0);\n"
     "   color = aCol;\n"
+    "   TexCoord = vec2(aTexCoord.x, aTexCoord.y);\n"
     "}\0";
 
 const char *fragmentShaderSource = "#version 330 core\n"
     "out vec4 FragColor;\n"
-    "//uniform vec4 ourColor;\n"
     "in vec3 color;\n"
+    "in vec2 TexCoord;\n"
+
+    "uniform sampler2D texture1;\n"
     "void main()\n"
     "{\n"
-    "   FragColor = vec4(color,1.0);//ourColor;\n"
+    "     FragColor = texture(texture1, TexCoord);\n"
     "}\n\0";
 
 int main()
@@ -164,27 +172,12 @@ int main()
 
 
     creaSolRevCaras(TIERRA,
-                    &num_vertices_tierra, &vertices_tierra, // notense los & para obtener el lugar de memoria (referencia) de las variables
+                    &num_vertices_tierra, &vertices_tierra,
                     &num_indices_tierra,  &indices_tierra);
 
     creaSolRevCaras(LUNA,
-                    &num_vertices_luna, &vertices_luna, // notense los & para obtener el lugar de memoria (referencia) de las variables
+                    &num_vertices_luna, &vertices_luna,
                     &num_indices_luna,  &indices_luna);
-
-
-    //
-    // se despliegan ambos arreglos
-    //
-    // printf("modificar_072_SolRev: nu_vertices=%d, num_indices=%d\n",num_vertices_luna, num_indices_luna);
-
-    /* int k,j,ikj;
-
-     for(k = 0; k < num_vertices; k++) printf("%d %f %f %f %f %f %f\n",k,vertices[k].x,vertices[k].y,vertices[k].z,vertices[k].r,vertices[k].g,vertices[k].b);
-     ikj = 0;
-     for(k = 0; k < num_indices / 3; k++) for(j = 0; j < 3; j++) printf("%d %d %d\n",k,j,indices[ikj++]);
-    */
-
-    // codigo como siempre (solo se cambiaron los tamaños de los arreglos para estos datos)
 
 
 
@@ -212,6 +205,9 @@ int main()
       glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VERTICE_TEX_NOR), (void*)(3*sizeof(float)));
       glEnableVertexAttribArray(1);
 
+      glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VERTICE_TEX_NOR), (void*)(6 * sizeof(float)));
+      glEnableVertexAttribArray(2);
+
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_tierra);
       glBufferData(GL_ELEMENT_ARRAY_BUFFER, num_indices_tierra * sizeof(unsigned int), indices_tierra, GL_STATIC_DRAW);
 
@@ -233,7 +229,6 @@ int main()
 
       num_indices = num_indices_luna;
 
-      // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
       glBindVertexArray(VAO_luna);
 
       glBindBuffer(GL_ARRAY_BUFFER, VBO_luna);
@@ -244,6 +239,10 @@ int main()
       glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VERTICE_TEX_NOR), (void*)(3*sizeof(float)));
       glEnableVertexAttribArray(1);
 
+      glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VERTICE_TEX_NOR), (void*)(6 * sizeof(float)));
+      glEnableVertexAttribArray(2);
+
+
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_luna);
       glBufferData(GL_ELEMENT_ARRAY_BUFFER, num_indices_luna * sizeof(unsigned int), indices_luna, GL_STATIC_DRAW);
 
@@ -252,19 +251,60 @@ int main()
     //                               FIN DE LUNA
     // ================================================================================
 
-    // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-    // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-    // glBindVertexArray(0);
-
-
-    // bind the VAO (it was already bound, but just to demonstrate): seeing as we only have a single VAO we can
-    // just bind it beforehand before rendering the respective triangle; this is another approach.
-
 
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
     glFrontFace(GL_CCW);
 
+
+    unsigned int texture1, texture2;
+    glGenTextures(1, &texture1);
+    glBindTexture(GL_TEXTURE_2D, texture1); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
+    // set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // load image, create texture and generate mipmaps
+    int width, height, nrChannels;
+    // The FileSystem::getPath(...) is part of the GitHub repository so we can find files on any IDE/platform; replace it with your own image path.
+    unsigned char *data = stbi_load(FileSystem::getPath("resources/textures/tierra.jpg").c_str(), &width, &height, &nrChannels, 0);
+    if (data)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);
+    // ----------------------------
+    //            texture2
+    // ----------------------------
+    glGenTextures(1, &texture2);
+    glBindTexture(GL_TEXTURE_2D, texture2); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
+    // set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // load image, create texture and generate mipmaps
+    // The FileSystem::getPath(...) is part of the GitHub repository so we can find files on any IDE/platform; replace it with your own image path.
+    data = stbi_load(FileSystem::getPath("resources/textures/luna.jpg").c_str(), &width, &height, &nrChannels, 0);
+    if (data)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);
+    unsigned int usar_textura;
 
     // render loop
     // -----------
@@ -276,7 +316,7 @@ int main()
 
         // render
         // ------
-        glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         // be sure to activate the shader before any calls to glUniform
@@ -311,7 +351,6 @@ for(int t= 0; t < 2; t++)
     //0 ->LUNA
         {
         generaPosiciones();
-
           mat4x4_identity(m);
 	//	  mat4x4_rotate_X(m, m, (t == 1?0.5:1.0) * (float)glfwGetTime());
 		//  mat4x4_rotate_Y(m, m, (t == 1?0.5:1.0) * (float)glfwGetTime());
@@ -333,12 +372,20 @@ for(int t= 0; t < 2; t++)
 
 		  glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*)mvp);
 
-          if(t == 1)
-
+          if(t == 1){
+            num_indices=num_indices_tierra;
+              usar_textura = texture1;
+              glBindTexture(GL_TEXTURE_2D, usar_textura);
               glBindVertexArray(VAO_tierra);
+          }
           else
+              {
+              num_indices=num_indices_luna;
+              usar_textura = texture2;
+              glBindTexture(GL_TEXTURE_2D, usar_textura);
               glBindVertexArray(VAO_luna);
 
+              }
 
           glDrawElements(GL_TRIANGLES,num_indices,GL_UNSIGNED_INT,0);
         }
