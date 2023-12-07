@@ -8,7 +8,7 @@
 #include <cmath>
 #include "linmath.h"
 
-#include "Resorte_03_Caras.cpp"
+#include "Resorte_04_Normales_TEX_ejes.cpp"
 VEC3 pos_1 = {0.0, 0.0, 0.0};
 VEC3 vel_1 = {0.0, 0.0, 0.0};
 
@@ -150,24 +150,24 @@ int main()
 
     int           num_vertices_tierra;
     int           num_indices_tierra;
-    VERTICE      *vertices_tierra;
+    VERTICE_TEX_NOR      *vertices_tierra;
     unsigned int *indices_tierra;
 
     int           num_vertices_luna;
     int           num_indices_luna;
-    VERTICE      *vertices_luna;
+    VERTICE_TEX_NOR      *vertices_luna;
     unsigned int *indices_luna;
 
 
     int LUNA = 1;
-    int ESFERA = 2;
+    int TIERRA = 2;
 
 
-    creaSolRevCaras(ESFERA,
+    creaSolRevCaras(TIERRA,
                     &num_vertices_tierra, &vertices_tierra, // notense los & para obtener el lugar de memoria (referencia) de las variables
                     &num_indices_tierra,  &indices_tierra);
 
-    creaSolRevCaras(ESFERA,
+    creaSolRevCaras(LUNA,
                     &num_vertices_luna, &vertices_luna, // notense los & para obtener el lugar de memoria (referencia) de las variables
                     &num_indices_luna,  &indices_luna);
 
@@ -205,11 +205,11 @@ int main()
       glBindVertexArray(VAO_tierra);
 
       glBindBuffer(GL_ARRAY_BUFFER, VBO_tierra);
-      glBufferData(GL_ARRAY_BUFFER, num_vertices_tierra*sizeof(VERTICE), vertices_tierra, GL_STATIC_DRAW);
+      glBufferData(GL_ARRAY_BUFFER, num_vertices_tierra*sizeof(VERTICE_TEX_NOR), vertices_tierra, GL_STATIC_DRAW);
 
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VERTICE), (void*)0);
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VERTICE_TEX_NOR), (void*)0);
       glEnableVertexAttribArray(0);
-      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VERTICE), (void*)(3*sizeof(float)));
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VERTICE_TEX_NOR), (void*)(3*sizeof(float)));
       glEnableVertexAttribArray(1);
 
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_tierra);
@@ -237,11 +237,11 @@ int main()
       glBindVertexArray(VAO_luna);
 
       glBindBuffer(GL_ARRAY_BUFFER, VBO_luna);
-      glBufferData(GL_ARRAY_BUFFER, num_vertices_luna*sizeof(VERTICE), vertices_luna, GL_STATIC_DRAW);
+      glBufferData(GL_ARRAY_BUFFER, num_vertices_luna*sizeof(VERTICE_TEX_NOR), vertices_luna, GL_STATIC_DRAW);
 
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VERTICE), (void*)0);
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VERTICE_TEX_NOR), (void*)0);
       glEnableVertexAttribArray(0);
-      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VERTICE), (void*)(3*sizeof(float)));
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VERTICE_TEX_NOR), (void*)(3*sizeof(float)));
       glEnableVertexAttribArray(1);
 
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_luna);
@@ -319,11 +319,11 @@ for(int t= 0; t < 2; t++)
 
           mat4x4_dup(mk,m);
         if(t==1){
-        x=mov_1.r.x/4e8;
-        y=mov_1.r.y/4e8;
+            x=mov_1.r.x/4e8;
+            y=mov_1.r.y/4e8;
         }else{
-        x=mov_2.r.x/4e8;
-        y=mov_2.r.y/4e8;
+            x=mov_2.r.x/4e8;
+            y=mov_2.r.y/4e8;
         }
         z=-6.0;
 		  mat4x4_translate(mtr,x,y,z);
