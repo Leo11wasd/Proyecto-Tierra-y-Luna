@@ -3,21 +3,21 @@
 
 #include "Movils.cpp"
 #include "VEC3.h"
-#include <stb_image.h>
+#include "Resorte_04_Normales_TEX_ejes.cpp"
 
+#include <stb_image.h>
 #include <iostream>
 #include <cmath>
 #include "linmath.h"
 #include <learnopengl/filesystem.h>
 
-#include "Resorte_04_Normales_TEX_ejes.cpp"
 VEC3 pos_1 = {0.0, 0.0, 0.0};
 VEC3 vel_1 = {0.0, 0.0, 0.0};
 
 VEC3 pos_2 = {384.403E6, 0.0, 0.0};
 VEC3 vel_2 = {0.0, 946.6322, 0.0};
 
-double deltaT = 1.0 * 3600; // segundos en una hora
+double deltaT = 0.5 * 3600; // segundos en una hora
 //double t_horas = 0.0f;
 
 Movil mov_1("Tierra", 5.9736E24, pos_1, vel_1);
@@ -352,7 +352,7 @@ for(int t= 0; t < 2; t++)
         {
         generaPosiciones();
           mat4x4_identity(m);
-	//	  mat4x4_rotate_X(m, m, (t == 1?0.5:1.0) * (float)glfwGetTime());
+		  //mat4x4_rotate_X(m, m, (t == 1?0.5:1.0) * (float)glfwGetTime());
 		//  mat4x4_rotate_Y(m, m, (t == 1?0.5:1.0) * (float)glfwGetTime());
           mat4x4_rotate_Z(m, m, (t == 1?0.5:1.0) * (float)glfwGetTime());
 
@@ -389,36 +389,11 @@ for(int t= 0; t < 2; t++)
 
           glDrawElements(GL_TRIANGLES,num_indices,GL_UNSIGNED_INT,0);
         }
-/*
-          mat4x4_identity(m);
 
-		  mat4x4_rotate_Y(m, m, (1.0) * (float)glfwGetTime());
-
-
-          mat4x4_dup(mk,m);
-        generaPosiciones();
-        //este es uno. hay q aplicarselo a los dos
-        mat4x4_translate(mtr,mov_2.r.x/4.2e8,mov_2.r.y/4.2e8,-6.0f);
-
-          mat4x4_mul(mk,mtr,mk);
-		  mat4x4_mul(mvp, pers, mk);
-
-		  glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*)mvp);
-
-
-              glBindVertexArray(VAO_tierra);
-
-
-          glDrawElements(GL_TRIANGLES,num_indices,GL_UNSIGNED_INT,0);
-*/
-        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-        // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    // optional: de-allocate all resources once they've outlived their purpose:
-    // ------------------------------------------------------------------------
 
 
       glDeleteVertexArrays(1, &VAO_tierra);
@@ -431,25 +406,17 @@ for(int t= 0; t < 2; t++)
 
     glDeleteProgram(shaderProgram);
 
-    // glfw: terminate, clearing all previously allocated GLFW resources.
-    // ------------------------------------------------------------------
     glfwTerminate();
     return 0;
 }
 
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 }
 
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    // make sure the viewport matches the new window dimensions; note that width and
-    // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
 }
