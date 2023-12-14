@@ -1,6 +1,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include "Movils.cpp"
 #include "VEC3.h"
 #include "Resorte_04_Normales_TEX_ejes.cpp"
@@ -13,14 +17,60 @@
 
 vec3 eye, target, up;
 float radio_camara;
-
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+int focus=1;
+bool firstMouse = true;
+float yaw   = -90.0f;	// yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
+float pitch =  0.0f;
+float lastX =  800.0f / 2.0;
+float lastY =  600.0 / 2.0;
+float fov   =  45.0f;
 VEC3 eye0    = { 4.0f, 0.0f, -18.0f};   //{ 0.0f, 0.0f, - 20.0f};
 VEC3 target0 = { 0.f,  0.f,   -6.0f}; //{ 0.1f, 0.3f,  -6.0f};   //{ 0.0f, 0.0f, -0.1f};
 VEC3 up0     = { 0.0f, 1.0f,   0.0f};   //{ 0.0f, 1.0f, 0.0f};
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
+{
+    float xpos = static_cast<float>(xposIn);
+    float ypos = static_cast<float>(yposIn);
+
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+    lastX = xpos;
+    lastY = ypos;
+
+    float sensitivity = 0.1f; // change this value to your liking
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    yaw += xoffset;
+    pitch += yoffset;
+
+    // make sure that when pitch is out of bounds, screen doesn't get flipped
+    if (pitch > 89.0f)
+        pitch = 89.0f;
+    if (pitch < -89.0f)
+        pitch = -89.0f;
+
+    glm::vec3 front;
+    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front.y = sin(glm::radians(pitch));
+    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    cameraFront = glm::normalize(front);
+}
 
 
 
 
+// timing
+float deltaTime = 0.0f;	// time between current frame and last frame
+float lastFrame = 0.0f;
 VEC3 pos_1 = {0.0, 0.0, 0.0};
 VEC3 vel_1 = {0.0, 0.0, 0.0};
 
@@ -136,6 +186,8 @@ int main()
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
+
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -443,13 +495,13 @@ for(int t= 0; t < 3; t++)
     //1 ->LUNA
         {
         generaPosiciones();
-          //mat4x4_identity(m);
-        mat4x4_identity(m);
-		  mat4x4_rotate_X(m, m, (t == 1?0.5:1.0) * (float)glfwGetTime());
-		  mat4x4_rotate_Y(m, m, (t == 1?0.5:1.0) * (float)glfwGetTime());
+          mat4x4_identity(m);
+		  //mat4x4_rotate_X(m, m, (t == 1?0.5:1.0) * (float)glfwGetTime());
+		  //mat4x4_rotate_Y(m, m, (t == 1?0.5:1.0) * (float)glfwGetTime());
           mat4x4_rotate_Z(m, m, (t == 1?0.5:1.0) * (float)glfwGetTime());
-
           mat4x4_dup(mk,m);
+
+
         if(t==0){
             x=mov_1.r.x/4e8;
             y=mov_1.r.y/4e8;
@@ -463,14 +515,26 @@ for(int t= 0; t < 3; t++)
             y=mov_3.r.y/4e8;
         }
         z=-3.0; //estamos asumiendo q todos estan en el mismo plano
+        if(focus==1){
         target[0]=mov_1.r.x/4e8;
-		target[1]=mov_1.r.y/4e8;
+		target[1]=mov_1.r.y/4e8; //CUAL OBJETO ES EL Q ESTA VIENDO
 		target[2]=mov_1.r.z/4e8;
+        }
+        if(focus==2){
+        target[0]=mov_2.r.x/4e8;
+		target[1]=mov_2.r.y/4e8; //CUAL OBJETO ES EL Q ESTA VIENDO
+		target[2]=mov_2.r.z/4e8;
+        }
+        if(focus==3){
+        target[0]=mov_3.r.x/4e8;
+		target[1]=mov_3.r.y/4e8; //CUAL OBJETO ES EL Q ESTA VIENDO
+		target[2]=mov_3.r.z/4e8;
+        }
 
+		eye[0] = target[0] +cameraFront[0];
+        eye[1] = target[1] -cameraFront[1];
+		eye[2] = target[2]-cameraFront[2];//-6
 
-		eye[0] = target[0] ;
-        eye[1] = target[1] ;
-		eye[2] = -5 ;
 
         mat4x4_look_at( mcam, eye, target, up );
           mat4x4_mul(mvp, pers, mcam);
@@ -537,9 +601,20 @@ void processInput(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS){
+            focus=1;
+    }
+    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS){
+            focus=2;
+    }
+    if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS){
+            focus=3;
+    }
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
+
+
