@@ -68,9 +68,7 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 
 
 
-// timing
-float deltaTime = 0.0f;	// time between current frame and last frame
-float lastFrame = 0.0f;
+
 VEC3 pos_1 = {0.0, 0.0, 0.0};
 VEC3 vel_1 = {0.0, 0.0, 0.0};
 
