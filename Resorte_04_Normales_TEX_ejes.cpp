@@ -312,14 +312,18 @@ void creaSolRevCaras(int TIPO,
 
     switch( TIPO )
     {
+        //  6,371 km  ->  1
+        //  1,737.4 km -> 0.27
+        //  0.001 ->  0.00000016
+
       case 1:  // LUNA
-             radio=0.17f*a;
+             radio=0.17f*a; //             radio=0.027f*a;
              M_puntos_rodaja = 100;
              N_rodajas       = 200;
              vertices = creaSolRev(func_circ,1.1* a, -a,a,M_puntos_rodaja,N_rodajas);
              break;
       case 2:  // TIERRA
-             radio=0.67f*a;
+             radio=0.45f*a;  //             radio=0.1f*a;
              M_puntos_rodaja = 100;
              N_rodajas       = 200;
              vertices = creaSolRev(func_circ,1.1* a, -a,a,M_puntos_rodaja,N_rodajas);
@@ -330,7 +334,7 @@ void creaSolRevCaras(int TIPO,
              vertices = creaSolRev(func_const,1.1* a, -a,a,M_puntos_rodaja,N_rodajas);
             break;
       case 4:  // SATELITE
-             radio=0.03f*a;
+             radio=0.06f*a; //             radio=0.01f*a;
              M_puntos_rodaja = 100;
              N_rodajas       = 200;
              vertices = creaSolRev(func_circ,1.1* a, -a,a,M_puntos_rodaja,N_rodajas);
