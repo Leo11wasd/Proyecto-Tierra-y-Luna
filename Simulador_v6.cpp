@@ -77,10 +77,10 @@ VEC3 vel_1 = {0.0, 0.0, 0.0};
 VEC3 pos_2 = {384.403E6, 0.0, 0.0}; //en miles de km
 VEC3 vel_2 = {0.0, 946.6322, 0.0};
 
-VEC3 pos_3 = {35.786E6, 0.0, 0.0}; //35.786E6
-VEC3 vel_3 = {0.0, 4E3, 0.0};
+VEC3 pos_3 = {95.786E6, 0.0, 0.0}; //35.786E6
+VEC3 vel_3 = {0.0, 2E3, 0.0};
 
-double deltaT = 0.1 * 3600; // segundos en una hora
+double deltaT = 1 * 3600; // segundos en una hora
 //double t_horas = 0.0f;
 
 Movil mov_1("Tierra", 5.9736E24, pos_1, vel_1);
@@ -517,17 +517,17 @@ for(int t= 0; t < 3; t++)
         z=-3.0; //estamos asumiendo q todos estan en el mismo plano
         if(focus==1){
         target[0]=mov_1.r.x/4e8;
-		target[1]=mov_1.r.y/4e8; //CUAL OBJETO ES EL Q ESTA VIENDO
+		target[1]=mov_1.r.y/4e8;
 		target[2]=mov_1.r.z/4e8;
         }
         if(focus==2){
         target[0]=mov_2.r.x/4e8;
-		target[1]=mov_2.r.y/4e8; //CUAL OBJETO ES EL Q ESTA VIENDO
+		target[1]=mov_2.r.y/4e8;
 		target[2]=mov_2.r.z/4e8;
         }
         if(focus==3){
         target[0]=mov_3.r.x/4e8;
-		target[1]=mov_3.r.y/4e8; //CUAL OBJETO ES EL Q ESTA VIENDO
+		target[1]=mov_3.r.y/4e8;
 		target[2]=mov_3.r.z/4e8;
         }
 
