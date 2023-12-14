@@ -11,14 +11,21 @@
 #include "linmath.h"
 #include <learnopengl/filesystem.h>
 
+VEC3 eye, target, up;
+
+VEC3 eye0    = { 0.0f, 0.0f, -18.0f};   //{ 0.0f, 0.0f, -20.0f};
+VEC3 target0 = { 0.f,  0.f,   -6.0f}; //{ 0.1f, 0.3f,  -6.0f};   //{ 0.0f, 0.0f, -0.1f};
+VEC3 up0     = { 0.0f, 1.0f,   0.0f};   //{ 0.0f, 1.0f, 0.0f};
+
+
 VEC3 pos_1 = {0.0, 0.0, 0.0};
 VEC3 vel_1 = {0.0, 0.0, 0.0};
 
 VEC3 pos_2 = {384.403E6, 0.0, 0.0}; //en miles de km
 VEC3 vel_2 = {0.0, 946.6322, 0.0};
 
-VEC3 pos_3 = {20.7E7, 0.0, 0.0}; //20.7E7
-VEC3 vel_3 = {0.0, 1E3, 0.0};
+VEC3 pos_3 = {35.786E6, 0.0, 0.0}; //35.786E6
+VEC3 vel_3 = {0.0, 4E3, 0.0};
 
 double deltaT = 1 * 3600; // segundos en una hora
 //double t_horas = 0.0f;
