@@ -429,7 +429,7 @@ unsigned int VBO_sat, VAO_sat, EBO_sat;
 
 		float ratio;
 		int width, height;
-		mat4x4 mcam, p, mvp,pers,mk,mtr;
+		mat4x4 mcam, p, mvp,pers,mk,mtr,m;
 		mat4x4_perspective(pers,30.0*atan(1.0)/45.0,800.0/600.0, 1.0,40.0);
 
 		glfwGetFramebufferSize(window, &width, &height);
@@ -443,12 +443,13 @@ for(int t= 0; t < 3; t++)
     //1 ->LUNA
         {
         generaPosiciones();
-          //mat4x4_identity(m);
+          mat4x4_identity(m);
 		  //mat4x4_rotate_X(m, m, (t == 1?0.5:1.0) * (float)glfwGetTime());
-		//  mat4x4_rotate_Y(m, m, (t == 1?0.5:1.0) * (float)glfwGetTime());
-          //mat4x4_rotate_Z(m, m, (t == 1?0.5:1.0) * (float)glfwGetTime());
+		  //mat4x4_rotate_Y(m, m, (t == 1?0.5:1.0) * (float)glfwGetTime());
+          mat4x4_rotate_Z(m, m, (t == 1?0.5:1.0) * (float)glfwGetTime());
+          mat4x4_dup(mk,m);
 
-          mat4x4_dup(mk,mvp);
+
         if(t==0){
             x=mov_1.r.x/4e8;
             y=mov_1.r.y/4e8;
@@ -462,21 +463,26 @@ for(int t= 0; t < 3; t++)
             y=mov_3.r.y/4e8;
         }
         z=-3.0; //estamos asumiendo q todos estan en el mismo plano
-        target[0]=mov_1.r.x/4e8;
-		target[1]=mov_1.r.y/4e8;
-		target[2]=mov_1.r.z/4e8;
+        target[0]=mov_2.r.x/4e8;
+		target[1]=mov_2.r.y/4e8; //CUAL OBJETO ES EL Q ESTA VIENDO
+		target[2]=mov_2.r.z/4e8;
 
 
 		eye[0] = target[0] ;
         eye[1] = target[1] ;
 		eye[2] = -6 ;
 
+
         mat4x4_look_at( mcam, eye, target, up );
           mat4x4_mul(mvp, pers, mcam);
 
 		  mat4x4_translate(mtr,x,y,z);
 
-		  mat4x4_mul(mvp, mvp, mtr);
+		  mat4x4_mul(mk, mtr, mk);
+          mat4x4_identity(mvp);
+          mat4x4_mul(mvp,mcam,mk);
+          mat4x4_mul(mvp,pers,mvp);
+
 
 		  glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*)mvp);
 
