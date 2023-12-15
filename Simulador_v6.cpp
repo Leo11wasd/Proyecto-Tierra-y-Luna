@@ -606,19 +606,31 @@ for(int t= 0; t < 3; t++)
         target[0]=mov_1.r.x/4e8;
 		target[1]=mov_1.r.y/4e8;
 		target[2]=mov_1.r.z/4e8;
-
+        eye[0]=target[0];
+        eye[1]=target[1];
         }
         if(focus==2){
         target[0]=mov_2.r.x/4e8;
 		target[1]=mov_2.r.y/4e8;
 		target[2]=mov_2.r.z/4e8;
+		eye[0]=target[0];
+        eye[1]=target[1];
         }
         if(focus==3){
         target[0]=mov_3.r.x/4e8;
 		target[1]=mov_3.r.y/4e8;
 		target[2]=mov_3.r.z/4e8;
-
-		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+        eye[0]=target[0];
+        eye[1]=target[1];
+        }
+        if(focus==4){
+        target[0]=mov_3.r.x/4e8;
+		target[1]=mov_3.r.y/4e8;
+		target[2]=mov_3.r.z/4e8;
+        eye[0]=5;
+        eye[1]=10;
+        }
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
 
                 cout<<"arriba"<<endl;
                 deltay+=deltapos;
@@ -648,7 +660,6 @@ for(int t= 0; t < 3; t++)
                 target[0]+=deltax;
                 target[1]+=deltay;
                 target[2]+=deltaz;
-                }
 
 
 		eye[2] = -5;//-6
@@ -761,6 +772,9 @@ void processInput(GLFWwindow *window)
     }
     if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS){
             focus=3;
+    }
+    if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS){
+            focus=4;
     }
 }
 
