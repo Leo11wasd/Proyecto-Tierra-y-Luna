@@ -78,7 +78,7 @@ VEC3 vel_2 = {0.0, 946.6322, 0.0};
 VEC3 pos_3 = {95.786E6, 0.0, 0.0}; //35.786E6
 VEC3 vel_3 = {0.0, 2E3, 0.0};
 
-double deltaT = 1 * 3600; // segundos en una hora
+double deltaT = 0.01 * 3600; // segundos en una hora
 //double t_horas = 0.0f;
 
 Movil mov_1("Tierra", 5.9736E24, pos_1, vel_1);
@@ -463,6 +463,9 @@ unsigned int VBO_sat, VAO_sat, EBO_sat;
 
     // render loop
     // -----------
+    float deltax,deltay,deltaz;
+    deltax=deltay=deltaz=0.0;
+    float deltapos=0.001;
     while (!glfwWindowShouldClose(window))
     {
         // input
@@ -517,6 +520,7 @@ for(int t= 0; t < 3; t++)
         target[0]=mov_1.r.x/4e8;
 		target[1]=mov_1.r.y/4e8;
 		target[2]=mov_1.r.z/4e8;
+
         }
         if(focus==2){
         target[0]=mov_2.r.x/4e8;
@@ -527,11 +531,42 @@ for(int t= 0; t < 3; t++)
         target[0]=mov_3.r.x/4e8;
 		target[1]=mov_3.r.y/4e8;
 		target[2]=mov_3.r.z/4e8;
-        }
 
-		eye[0] = target[0] +cameraFront[0];
-        eye[1] = target[1] -cameraFront[1];
-		eye[2] = target[2]-cameraFront[2];//-6
+		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+
+                cout<<"arriba"<<endl;
+                deltay+=deltapos;
+
+
+                }
+
+                if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+
+                cout<<"abajo"<<endl;
+                deltay-=deltapos;
+
+                }
+
+                if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+                 cout<<"izquierda"<<endl;
+                deltax+=deltapos;
+
+                }
+
+                if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+                    cout<<"derecha"<<endl;
+                deltax-=deltapos;
+
+
+                }
+                target[0]+=deltax;
+                target[1]+=deltay;
+                target[2]+=deltaz;
+                }
+
+		eye[0] = target[0] ;
+        eye[1] = target[1] ;
+		eye[2] = -6;//-6
 
 
         mat4x4_look_at( mcam, eye, target, up );
